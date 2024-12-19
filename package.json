@@ -1,0 +1,18 @@
+{
+  "name": "cme-tracker",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"bun run dev:frontend\" \"bun run dev:backend\"",
+    "dev:frontend": "bun run --cwd packages/frontend dev",
+    "dev:backend": "bun run --cwd packages/backend start:dev",
+    "build": "bun run build:frontend && bun run build:backend",
+    "build:frontend": "bun run --cwd packages/frontend build",
+    "build:backend": "bun run --cwd packages/backend build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+} 
