@@ -1,4 +1,4 @@
-import { Modal, TextInput, NumberInput, Select, Button, Stack, Group, Textarea } from '@mantine/core';
+import { Modal, TextInput, NumberInput, Select, Button, Stack, Group, Textarea, ScrollArea, Box } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
 import { ActivityType, CreditCategory } from '../../types';
@@ -59,72 +59,108 @@ export function DocumentEditModal({
       onClose={onClose}
       title="Edit Document Details"
       size="lg"
+      styles={{
+        inner: {
+          padding: '20px',
+        },
+        content: {
+          maxHeight: 'calc(100vh - 40px)',
+        },
+        body: {
+          padding: 0,
+          overflow: 'hidden',
+        },
+        header: {
+          marginBottom: 0,
+          padding: '20px',
+        },
+      }}
     >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack>
-          <TextInput
-            label="Title"
-            placeholder="Activity title"
-            {...form.getInputProps('title')}
-          />
-          
-          <TextInput
-            label="Provider"
-            placeholder="Provider name"
-            {...form.getInputProps('provider')}
-          />
+      <Box style={{ display: 'flex', flexDirection: 'column', height: 'calc(90vh - 120px)' }}>
+        <ScrollArea style={{ flex: 1 }} type="auto" offsetScrollbars>
+          <Box p="md">
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <Stack gap="md">
+                <TextInput
+                  label="Title"
+                  placeholder="Activity title"
+                  {...form.getInputProps('title')}
+                />
+                
+                <TextInput
+                  label="Provider"
+                  placeholder="Provider name"
+                  {...form.getInputProps('provider')}
+                />
 
-          <NumberInput
-            label="Credits"
-            placeholder="Number of credits"
-            min={0}
-            {...form.getInputProps('credits')}
-          />
+                <NumberInput
+                  label="Credits"
+                  placeholder="Number of credits"
+                  min={0}
+                  {...form.getInputProps('credits')}
+                />
 
-          <Select
-            label="Category"
-            placeholder="Select category"
-            data={Object.values(CreditCategory)}
-            {...form.getInputProps('category')}
-          />
+                <Select
+                  label="Category"
+                  placeholder="Select category"
+                  data={Object.values(CreditCategory)}
+                  {...form.getInputProps('category')}
+                />
 
-          <Select
-            label="Activity Type"
-            placeholder="Select activity type"
-            data={Object.values(ActivityType)}
-            {...form.getInputProps('activityType')}
-          />
+                <Select
+                  label="Activity Type"
+                  placeholder="Select activity type"
+                  data={Object.values(ActivityType)}
+                  {...form.getInputProps('activityType')}
+                />
 
-          <DateInput
-            label="Completion Date"
-            placeholder="When did you complete this activity?"
-            {...form.getInputProps('completedDate')}
-          />
+                <DateInput
+                  label="Completion Date"
+                  placeholder="When did you complete this activity?"
+                  {...form.getInputProps('completedDate')}
+                />
 
-          <DateInput
-            label="Expiration Date"
-            placeholder="When does this expire? (optional)"
-            {...form.getInputProps('expirationDate')}
-          />
+                <DateInput
+                  label="Expiration Date"
+                  placeholder="When does this expire? (optional)"
+                  {...form.getInputProps('expirationDate')}
+                />
 
-          <Textarea
-            label="Description"
-            placeholder="Activity description"
-            {...form.getInputProps('description')}
-          />
+                <Textarea
+                  label="Description"
+                  placeholder="Activity description"
+                  minRows={3}
+                  autosize
+                  maxRows={6}
+                  {...form.getInputProps('description')}
+                />
 
-          <Textarea
-            label="Notes"
-            placeholder="Additional notes"
-            {...form.getInputProps('notes')}
-          />
+                <Textarea
+                  label="Notes"
+                  placeholder="Additional notes"
+                  minRows={2}
+                  autosize
+                  maxRows={4}
+                  {...form.getInputProps('notes')}
+                />
+              </Stack>
+            </form>
+          </Box>
+        </ScrollArea>
 
-          <Group justify="flex-end" mt="md">
+        <Box 
+          p="md" 
+          style={{ 
+            borderTop: '1px solid var(--mantine-color-gray-3)',
+            backgroundColor: 'var(--mantine-color-body)',
+          }}
+        >
+          <Group justify="flex-end">
             <Button variant="light" onClick={onClose}>Cancel</Button>
-            <Button type="submit">Save</Button>
+            <Button onClick={form.onSubmit(handleSubmit)}>Save</Button>
           </Group>
-        </Stack>
-      </form>
+        </Box>
+      </Box>
     </Modal>
   );
 } 

@@ -9,10 +9,15 @@ import { useState } from 'react';
 import { DocumentEditModal } from './DocumentEditModal';
 import { modals } from '@mantine/modals';
 
-export function DocumentsList() {
+interface DocumentsListProps {
+  onEditDocument: (id: string) => void;
+  editingDocument: string | null;
+  onCloseEdit: () => void;
+}
+
+export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: DocumentsListProps) {
   const { state: { user } } = useAuth();
   const queryClient = useQueryClient();
-  const [editingDocument, setEditingDocument] = useState<string | null>(null);
 
   const { data: documents, isLoading, error } = useQuery({
     queryKey: ['documents', user?.id],
@@ -111,8 +116,6 @@ export function DocumentsList() {
     }
   };
 
-  const currentDocument = documents?.find(d => d.id === editingDocument);
-
   return (
     <>
       <Stack>
@@ -158,7 +161,7 @@ export function DocumentsList() {
                 <ActionIcon
                   variant="light"
                   color="blue"
-                  onClick={() => setEditingDocument(doc.id)}
+                  onClick={() => onEditDocument(doc.id)}
                   title="Edit details"
                 >
                   <IconEdit size="1rem" />
@@ -180,7 +183,7 @@ export function DocumentsList() {
 
       <DocumentEditModal
         opened={!!editingDocument}
-        onClose={() => setEditingDocument(null)}
+        onClose={onCloseEdit}
         onSave={async (values) => {
           if (!editingDocument) return;
           await updateDocument.mutateAsync({
@@ -188,7 +191,7 @@ export function DocumentsList() {
             ...values,
           });
         }}
-        initialData={currentDocument}
+        initialData={documents?.find(d => d.id === editingDocument)}
         documentId={editingDocument!}
       />
     </>

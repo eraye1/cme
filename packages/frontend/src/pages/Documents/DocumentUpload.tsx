@@ -5,42 +5,41 @@ import { notifications } from '@mantine/notifications';
 import { useAuth } from '../../features/auth/AuthContext';
 import { documentsApi } from '../../api/documents';
 import { useState } from 'react';
+import { Document } from '../../types';
 
 interface DocumentUploadProps {
-  onSuccess?: () => void;
+  onSuccess: (document: Document) => void;
 }
 
 export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   const theme = useMantineTheme();
   const { state: { user } } = useAuth();
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleDrop = async (files: FileWithPath[]) => {
-    if (!user || isUploading) return;
+    if (!user || uploading || !files.length) return;
 
+    const file = files[0];
     try {
-      setIsUploading(true);
-      const file = files[0];
+      setUploading(true);
       const formData = new FormData();
       formData.append('file', file);
 
-      await documentsApi.upload(user.id, formData);
-      
+      const document = await documentsApi.upload(user.id, formData);
       notifications.show({
         title: 'Success',
         message: 'Document uploaded successfully',
         color: 'green',
       });
-
-      onSuccess?.();
+      onSuccess(document);
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: error instanceof Error ? error.message : 'Upload failed',
+        message: error instanceof Error ? error.message : 'Failed to upload document',
         color: 'red',
       });
     } finally {
-      setIsUploading(false);
+      setUploading(false);
     }
   };
 
@@ -49,7 +48,8 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
       onDrop={handleDrop}
       maxSize={5 * 1024 ** 2}
       accept={['application/pdf', 'image/jpeg', 'image/png']}
-      loading={isUploading}
+      loading={uploading}
+      multiple={false}
     >
       <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
         <Dropzone.Accept>
@@ -73,7 +73,7 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
 
         <div>
           <Text size="xl" inline>
-            {isUploading ? 'Uploading...' : 'Drag CME documents here or click to select'}
+            {uploading ? 'Uploading...' : 'Drag CME documents here or click to select'}
           </Text>
           <Text size="sm" c="dimmed" inline mt={7}>
             Upload your CME certificates, transcripts, or other documentation (PDF, JPG, PNG)
