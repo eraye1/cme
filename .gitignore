@@ -30,3 +30,12 @@ yarn-error.log*
 # Prisma
 packages/backend/node_modules
 packages/frontend/node_modules
+
+# Uploads
+packages/backend/uploads/*
+!packages/backend/uploads/.gitkeep
+
+# Environment variables
+.env
+.env.local
+.env.*.local

@@ -13,6 +13,8 @@
     "build:backend": "bun run --cwd packages/backend build"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.16"
   }
 } 

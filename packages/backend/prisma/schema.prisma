@@ -12,3 +12,150 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String
+  licenseNumber String?
+  specialty     String?
+  credentials   String[] // e.g., ["MD", "PhD"]
+  cmeCredits    CmeCredit[]
+  templates     CmeTemplate[]
+  requirements  Requirement[]
+  documents     Document[]
+  refreshTokens RefreshToken[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model CmeCredit {
+  id            String         @id @default(cuid())
+  title         String
+  provider      String
+  activityType  ActivityType
+  category      CreditCategory
+  credits       Float
+  completedAt   DateTime
+  expiresAt     DateTime?
+  description   String?
+  location      String? // For conferences/live events
+  isVerified    Boolean        @default(false)
+  documents     Document[]
+  templateId    String?
+  template      CmeTemplate?   @relation(fields: [templateId], references: [id])
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  requirementId String?
+  requirement   Requirement?   @relation(fields: [requirementId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([templateId])
+  @@index([requirementId])
+}
+
+model CmeTemplate {
+  id           String         @id @default(cuid())
+  name         String
+  provider     String
+  activityType ActivityType
+  category     CreditCategory
+  credits      Float?
+  description  String?
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  credits_used CmeCredit[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+model Document {
+  id             String             @id @default(cuid())
+  userId         String
+  fileName       String
+  fileType       String
+  fileUrl        String
+  sourceType     DocumentSourceType
+  title          String?
+  provider       String?
+  credits        Float?
+  completedDate  DateTime?
+  expirationDate DateTime?
+  category       CreditCategory?
+  activityType   ActivityType?
+  confidence     Float?
+  description    String?
+  notes          String?
+  status         ProcessingStatus   @default(PENDING)
+  error          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  user           User               @relation(fields: [userId], references: [id])
+  CmeCredit      CmeCredit?         @relation(fields: [cmeCreditId], references: [id])
+  cmeCreditId    String?
+
+  @@index([userId])
+}
+
+model Requirement {
+  id           String      @id @default(cuid())
+  name         String
+  description  String?
+  totalCredits Float
+  startDate    DateTime
+  endDate      DateTime
+  categories   String[] // Acceptable credit categories
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  credits      CmeCredit[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+enum ActivityType {
+  CONFERENCE
+  ONLINE_COURSE
+  JOURNAL_ARTICLE
+  TEACHING
+  MANUSCRIPT_REVIEW
+  SELF_ASSESSMENT
+  POINT_OF_CARE
+  BOARD_REVIEW
+}
+
+enum CreditCategory {
+  CATEGORY_1
+  CATEGORY_2
+  SPECIALTY
+}
+
+enum DocumentSourceType {
+  UPLOAD
+  EMAIL
+  PHOTO
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
