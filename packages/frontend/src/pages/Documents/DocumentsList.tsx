@@ -153,7 +153,7 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                   Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
                 </Text>
                 <Text size="sm" c="dimmed">
-                  Completed on {new Date(doc.createdAt).toLocaleDateString()}
+                  Completed on {new Date(doc.completedDate).toLocaleDateString()}
                 </Text>
                 {doc.provider && (
                   <Text size="sm">Provider: {doc.provider}</Text>
