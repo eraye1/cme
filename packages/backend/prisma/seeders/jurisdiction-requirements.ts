@@ -2,41 +2,49 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-interface CreateJurisdictionParams {
+type RequirementParams = {
+  categoryName: string;
+  requiredHours: number;
+  maximumHours?: number;
+  annualLimit?: number;
+  notes?: string;
+};
+
+type SpecialRequirementParams = {
+  topic: string;
+  requiredHours: number;
+  description: string;
+  effectiveDate?: Date;
+  oneTime?: boolean;
+  notes?: string;
+};
+
+type LegalCitationParams = {
+  citation: string;
+  url?: string;
+};
+
+type ExceptionParams = {
+  description: string;
+};
+
+type JurisdictionParams = {
   state: string;
+  licenseType: 'MD' | 'DO' | 'MD_DO';
+  totalHours: number;
+  cycleLength: number;
+  requirements?: RequirementParams[];
+  specialRequirements?: SpecialRequirementParams[];
+  legalCitations?: LegalCitationParams[];
+  exceptions?: ExceptionParams[];
+  carryOverHours?: number;
   verified?: boolean;
   live?: boolean;
-  licenseType: 'MD' | 'DO' | 'MD | DO';
-  requiresCme: boolean;
-  hasSpecificContent: boolean;
-  totalHours: number;
-  cycleLength: number; // in months
-  requirements?: {
-    categoryName: string;
-    requiredHours: number;
-    maximumHours?: number;
-    annualLimit?: number;
-    effectiveDate?: Date;
-    notes?: string;
-  }[];
-  specialRequirements?: {
-    topic: string;
-    requiredHours: number;
-    description: string;
-    effectiveDate?: Date;
-    notes?: string;
-    oneTime?: boolean;
-  }[];
-  legalCitations?: {
-    citation: string;
-    url?: string;
-  }[];
-  exceptions?: {
-    description: string;
-  }[];
-}
+  requiresCme?: boolean;
+  hasSpecificContent?: boolean;
+};
 
-async function createJurisdictionRequirement(params: CreateJurisdictionParams) {
+async function createJurisdictionRequirement(params: JurisdictionParams) {
   try {
     console.log(`Upserting ${params.state} ${params.licenseType} requirements...`);
     
@@ -97,7 +105,7 @@ async function seedStates() {
   // Alabama
   await createJurisdictionRequirement({
     state: 'AL',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -128,7 +136,7 @@ async function seedStates() {
   // Alaska
   await createJurisdictionRequirement({
     state: 'AK',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -239,7 +247,7 @@ async function seedStates() {
   // Arkansas
   await createJurisdictionRequirement({
     state: 'AR',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -349,7 +357,7 @@ async function seedStates() {
   // Colorado
   await createJurisdictionRequirement({
     state: 'CO',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -384,7 +392,7 @@ async function seedStates() {
   // Connecticut
   await createJurisdictionRequirement({
     state: 'CT',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: false,
     live: false,
     requiresCme: true,
@@ -414,7 +422,7 @@ async function seedStates() {
   // Delaware
   await createJurisdictionRequirement({
     state: 'DE',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -423,7 +431,7 @@ async function seedStates() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AMA Category 1 | AOA Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A | AOA Category 1B',
         requiredHours: 40,
       }
     ],
@@ -453,7 +461,7 @@ async function seedStates() {
   // District of Columbia
   await createJurisdictionRequirement({
     state: 'DC',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -462,7 +470,7 @@ async function seedStates() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AMA Category 1 | AOA Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 50,
       }
     ],
@@ -543,7 +551,7 @@ async function seedStates() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AOA Category 1-A',
+        categoryName: '-A',
         requiredHours: 20,
       }
     ],
@@ -564,7 +572,7 @@ async function seedStates() {
   // Georgia
   await createJurisdictionRequirement({
     state: 'GA',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -615,7 +623,7 @@ async function seedStates() {
   // Hawaii
   await createJurisdictionRequirement({
     state: 'HI',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -624,7 +632,7 @@ async function seedStates() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AMA Category 1 | AOA Category 1 | AMA Category 1A | AOA Category 1A',
+        categoryName: 'AMA Category 1 | AOA Category 1A | AOA Category 1B',
         requiredHours: 40,
       }
     ],
@@ -638,7 +646,7 @@ async function seedStates() {
   // Idaho
   await createJurisdictionRequirement({
     state: 'ID',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -647,7 +655,7 @@ async function seedStates() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AMA Category 1 | AOA Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A | AOA Category 1B',
         requiredHours: 40,
       }
     ],
@@ -667,7 +675,9 @@ async function seedStates() {
   // Illinois
   await createJurisdictionRequirement({
     state: 'IL',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 150,
@@ -695,6 +705,11 @@ async function seedStates() {
         requiredHours: 1,
         description: 'Required training in implicit bias awareness',
         effectiveDate: new Date('2023-01-01'),
+      },
+      {
+        topic: 'Opioid Prescribing',
+        requiredHours: 3,
+        description: 'Required for all physicians',
       }
     ],
     legalCitations: [
@@ -703,6 +718,9 @@ async function seedStates() {
       },
       {
         citation: '20 ILCS 2105/2105-365',
+      },
+      {
+        citation: '20 ILCS 2105/2105-15.7.',
       }
     ]
   });
@@ -710,7 +728,9 @@ async function seedStates() {
   // Indiana
   await createJurisdictionRequirement({
     state: 'IN',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 2, // Special case - only opioid requirement
@@ -733,16 +753,24 @@ async function seedStates() {
   // Iowa
   await createJurisdictionRequirement({
     state: 'IA',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
+    carryOverHours: 20,
     cycleLength: 24,
     specialRequirements: [
       {
-        topic: 'Child/Dependent Adult Abuse',
+        topic: 'Dependent Adult Abuse',
         requiredHours: 2,
         description: 'Required for primary care providers every 5 years',
+      },
+      {
+        topic: 'Child Abuse',
+        requiredHours: 2,
+        description: 'Required for primary care providers that deal with children every 5 years',
       },
       {
         topic: 'Chronic Pain Management',
@@ -760,7 +788,16 @@ async function seedStates() {
         citation: 'Iowa Admin. Code r. 653-11.4(1)',
       },
       {
+        citation: 'Iowa Admin. Code r. 653-11.2(2).',
+      },
+      {
         citation: 'Iowa Admin. Code r. 653-11.4(272C)',
+      }
+    ],
+    exceptions: [
+      {
+        description: 'The Board will accept participation in an approved resident training program or board ' + 
+        'certification or recertification by an ABMS or AOA specialty board within the licensing period.',
       }
     ]
   });
@@ -768,18 +805,20 @@ async function seedStates() {
   // Kansas
   await createJurisdictionRequirement({
     state: 'KS',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: false,
+    live: false,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
     cycleLength: 18,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 20,
       },
       {
-        categoryName: 'Category 2',
+        categoryName: 'AMA Category 2',
         requiredHours: 30,
       }
     ],
@@ -793,18 +832,26 @@ async function seedStates() {
   // Kentucky
   await createJurisdictionRequirement({
     state: 'KY',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true, 
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
     cycleLength: 36,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 30,
       }
     ],
     specialRequirements: [
+      {
+        topic: 'Domestic Violence',
+        requiredHours: 1, 
+        description: 'Required for all physicians',
+        oneTime: true,
+      },
       {
         topic: 'HIV/AIDS',
         requiredHours: 2,
@@ -827,14 +874,16 @@ async function seedStates() {
   // Louisiana
   await createJurisdictionRequirement({
     state: 'LA',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 20,
     cycleLength: 12,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 20,
       }
     ],
@@ -849,6 +898,7 @@ async function seedStates() {
         topic: 'Board Orientation',
         requiredHours: 0,
         description: 'One-time course required for new licensees on Medical Practice Act and Board rules',
+        oneTime: true,
       }
     ],
     legalCitations: [
@@ -862,13 +912,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'ME',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 100,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 40,
       }
     ],
@@ -886,17 +938,49 @@ async function seedStates() {
     ]
   });
 
+  // Maine - DO
+  await createJurisdictionRequirement({
+    state: 'ME',
+    licenseType: 'DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 100,
+    cycleLength: 24,
+    requirements: [
+      {
+        categoryName: 'AOA Category 1',
+        requiredHours: 40,
+      }
+    ],
+    specialRequirements: [
+      {
+        topic: 'Opioid Prescribing',
+        requiredHours: 3,
+        description: 'Required for physicians who prescribe controlled substances',
+      }
+    ],
+    legalCitations: [
+      {
+        citation: 'Code Me. R. 02-383 Ch. 14 §§ 1-2',
+      }
+    ]
+  });
+
   // Maryland
   await createJurisdictionRequirement({
     state: 'MD',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 50,
       }
     ],
@@ -917,6 +1001,9 @@ async function seedStates() {
     legalCitations: [
       {
         citation: 'COMAR 10.32.01.10',
+      },
+      {
+        citation: 'HB 1452 of 2018',
       }
     ]
   });
@@ -924,7 +1011,9 @@ async function seedStates() {
   // Massachusetts
   await createJurisdictionRequirement({
     state: 'MA',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: false,
+    live: false,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
@@ -940,7 +1029,8 @@ async function seedStates() {
       {
         topic: 'End-of-Life Care',
         requiredHours: 2,
-        description: 'One-time requirement',
+        description: '',
+        oneTime: true,
       },
       {
         topic: 'Opioid Education',
@@ -973,13 +1063,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'MI',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 150,
     cycleLength: 36,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 75,
       }
     ],
@@ -997,8 +1089,8 @@ async function seedStates() {
       },
       {
         topic: 'Implicit Bias',
-        requiredHours: 2,
-        description: 'Required for new applicants, 1 hour annually for renewals',
+        requiredHours: 1,
+        description: 'Required for new applicants, 2 hours for the first time, 1 hour for renewals',
         effectiveDate: new Date('2022-06-01'),
       }
     ],
@@ -1013,13 +1105,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'MI',
     licenseType: 'DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 150,
     cycleLength: 36,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 60,
       }
     ],
@@ -1047,7 +1141,9 @@ async function seedStates() {
   // Minnesota
   await createJurisdictionRequirement({
     state: 'MN',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 75,
@@ -1068,7 +1164,9 @@ async function seedStates() {
   // Mississippi
   await createJurisdictionRequirement({
     state: 'MS',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
@@ -1096,7 +1194,9 @@ async function seedStates() {
   // Missouri
   await createJurisdictionRequirement({
     state: 'MO',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
@@ -1118,7 +1218,9 @@ async function seedStates() {
   // Montana
   await createJurisdictionRequirement({
     state: 'MT',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: false,
     hasSpecificContent: false,
     totalHours: 0,
@@ -1128,7 +1230,9 @@ async function seedStates() {
   // Nebraska
   await createJurisdictionRequirement({
     state: 'NE',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
@@ -1158,10 +1262,18 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'NV',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
+    requirements: [
+      {
+        categoryName: 'AMA Category 1',
+        requiredHours: 40,
+      }
+    ],
     specialRequirements: [
       {
         topic: 'Ethics/Pain Management/Addiction',
@@ -1177,11 +1289,55 @@ async function seedStates() {
         topic: 'Suicide Prevention',
         requiredHours: 2,
         description: 'Required every 4 years in suicide detection, intervention, and prevention',
+      },
+      {
+        topic: 'WMD/Bioterrorism',
+        requiredHours: 4,
+        description: 'Required within 2 years of licensure',
+        oneTime: true,
       }
     ],
     legalCitations: [
       {
         citation: 'Nev. Rev. Stat. 630.253',
+      },
+      {
+        citation: 'Nev. Admin. Code ch. 630, s. 153, 154, 155.',
+      }
+    ]
+  });
+
+  // Nevada (DO)
+  await createJurisdictionRequirement({
+    state: 'NV',
+    licenseType: 'DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 35,
+    cycleLength: 24,
+    requirements: [
+      {
+        categoryName: 'AOA Category 1A',
+        requiredHours: 35,
+      }
+    ],
+    specialRequirements: [
+      {
+        topic: 'Ethics/Pain Management/Addiction',
+        requiredHours: 2,
+        description: 'Must be in medical ethics, pain management, or addiction care',
+      },
+      {
+        topic: 'Suicide Prevention',
+        requiredHours: 2,
+        description: 'Required every 4 years in suicide detection, intervention, and prevention',
+      },
+    ],
+    legalCitations: [
+      {
+        citation: 'Nev. Rev. Stat. 633.250',
       }
     ]
   });
@@ -1189,7 +1345,9 @@ async function seedStates() {
   // New Hampshire
   await createJurisdictionRequirement({
     state: 'NH',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 100,
@@ -1198,10 +1356,6 @@ async function seedStates() {
       {
         categoryName: 'Category 1',
         requiredHours: 40,
-      },
-      {
-        categoryName: 'Category 2',
-        requiredHours: 60,
       }
     ],
     specialRequirements: [
@@ -1214,6 +1368,9 @@ async function seedStates() {
     legalCitations: [
       {
         citation: 'N.H. Rev. Stat. 329:16-g',
+      },
+      {
+        citation: 'N.H. Admin. R. Ann. Med 402.01.',
       }
     ]
   });
@@ -1222,18 +1379,16 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'NJ',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 100,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 40,
-      },
-      {
-        categoryName: 'Category 2',
-        requiredHours: 60,
       }
     ],
     specialRequirements: [
@@ -1252,6 +1407,12 @@ async function seedStates() {
         requiredHours: 1,
         description: 'Required for 2019 renewals and after',
         effectiveDate: new Date('2019-01-01'),
+      },
+      {
+        topic: 'Orientation Attendance',
+        requiredHours: 2,
+        description: 'Required for newly licensed physicians, no CME credit involved',
+        oneTime: true,
       }
     ],
     legalCitations: [
@@ -1260,6 +1421,12 @@ async function seedStates() {
       },
       {
         citation: 'N.J. Admin. Code 13:35-6.15',
+      },
+      {
+        citation: 'N.J. P.L. 2011, c.145 (C45: 9-7.7)',
+      },
+      {
+        citation: 'N.J. P.L. 2017, c. 28',
       }
     ]
   });
@@ -1267,7 +1434,9 @@ async function seedStates() {
   // New Mexico
   await createJurisdictionRequirement({
     state: 'NM',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 75,
@@ -1292,13 +1461,15 @@ async function seedStates() {
     ]
   });
 
-  // New York (MD)
+  // New York
   await createJurisdictionRequirement({
     state: 'NY',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
-    totalHours: 0, // Special case - only specific content requirements
+    totalHours: 2, // Special case - only specific content requirements
     cycleLength: 48,
     specialRequirements: [
       {
@@ -1327,7 +1498,9 @@ async function seedStates() {
   // North Carolina
   await createJurisdictionRequirement({
     state: 'NC',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
@@ -1343,7 +1516,8 @@ async function seedStates() {
       {
         topic: 'Controlled Substance Prescribing',
         requiredHours: 3,
-        description: 'Must address controlled substance prescribing practices, recognizing abuse signs, and chronic pain management',
+        description: 'Only for physicians who prescribe controlled substances. ' + 
+        'Must address controlled substance prescribing practices, recognizing abuse signs, and chronic pain management',
       }
     ],
     legalCitations: [
@@ -1356,7 +1530,9 @@ async function seedStates() {
   // North Dakota
   await createJurisdictionRequirement({
     state: 'ND',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
@@ -1377,7 +1553,9 @@ async function seedStates() {
   // Ohio
   await createJurisdictionRequirement({
     state: 'OH',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 100,
@@ -1389,6 +1567,12 @@ async function seedStates() {
       }
     ],
     specialRequirements: [
+      {
+        topic: 'Pain Medicine',
+        requiredHours: 1,
+        description: 'Required only for owners of pain management clinics',
+        effectiveDate: new Date('2021-05-31'),
+      },
       {
         topic: 'Duty to Report',
         requiredHours: 1,
@@ -1410,6 +1594,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'OK',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
@@ -1439,6 +1625,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'OK',
     licenseType: 'DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 16,
@@ -1466,7 +1654,9 @@ async function seedStates() {
   // Oregon
   await createJurisdictionRequirement({
     state: 'OR',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
@@ -1493,6 +1683,9 @@ async function seedStates() {
     legalCitations: [
       {
         citation: 'Or. Admin. R § 847-008-0070',
+      },
+      {
+        citation: 'Or. Admin. R. § 847-008-0075(1)',
       }
     ]
   });
@@ -1500,7 +1693,9 @@ async function seedStates() {
   // Pennsylvania (MD)
   await createJurisdictionRequirement({
     state: 'PA',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 100,
@@ -1526,49 +1721,23 @@ async function seedStates() {
         topic: 'Opioid Education',
         requiredHours: 2,
         description: 'Required in pain management or addiction identification',
+      },
+      {
+        topic: 'Opioid Education (On initial licensure)',
+        requiredHours: 2,
+        description: 'In addition to the two hours required on re-licensure',
+        oneTime: true,
       }
     ],
     legalCitations: [
       {
         citation: 'Pa. Code tit. 49, § 16.19',
-      }
-    ]
-  });
-
-  // Pennsylvania (DO)
-  await createJurisdictionRequirement({
-    state: 'PA',
-    licenseType: 'DO',
-    requiresCme: true,
-    hasSpecificContent: true,
-    totalHours: 100,
-    cycleLength: 24,
-    requirements: [
-      {
-        categoryName: 'Category 1',
-        requiredHours: 20,
-      }
-    ],
-    specialRequirements: [
-      {
-        topic: 'Patient Safety/Risk Management',
-        requiredHours: 12,
-        description: 'Required hours in patient safety or risk management',
       },
       {
-        topic: 'Child Abuse',
-        requiredHours: 2,
-        description: 'Required in child abuse recognition and reporting',
+        citation: '35 P. S. § 872.3.',
       },
       {
-        topic: 'Opioid Prescribing',
-        requiredHours: 2,
-        description: 'Required in prescribing practices',
-      }
-    ],
-    legalCitations: [
-      {
-        citation: 'Pa. Code tit. 49, § 25.271',
+        citation: 'Pa. Code tit. 49, § 25.271.',
       }
     ]
   });
@@ -1576,16 +1745,17 @@ async function seedStates() {
   // Rhode Island
   await createJurisdictionRequirement({
     state: 'RI',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 40,
-        notes: 'All must be AMA Category 1 or AOA Category 1A',
       }
     ],
     specialRequirements: [
@@ -1605,14 +1775,16 @@ async function seedStates() {
   // South Carolina
   await createJurisdictionRequirement({
     state: 'SC',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 40,
         notes: 'At least 30 hours must be related to the licensee\'s practice area',
       }
@@ -1627,6 +1799,9 @@ async function seedStates() {
     legalCitations: [
       {
         citation: 'SC Code § 40-47-40',
+      },
+      {
+        citation: 'S.C. Code Regs. 81-95',
       }
     ]
   });
@@ -1635,6 +1810,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'SD',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: false,
     hasSpecificContent: false,
     totalHours: 0,
@@ -1645,13 +1822,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'TN',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 40,
       }
     ],
@@ -1664,6 +1843,9 @@ async function seedStates() {
     ],
     legalCitations: [
       {
+        citation: 'Tenn. Comp. R. & Regs. 0880-02-.14',
+      },
+      {
         citation: 'Tenn. Comp. R. & Regs. 0880-02-.19',
       }
     ]
@@ -1673,13 +1855,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'TN',
     licenseType: 'DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AOA Category 1A or 2A',
+        categoryName: 'AOA Category 1A | AOA Category 2A',
         requiredHours: 40,
       }
     ],
@@ -1700,16 +1884,17 @@ async function seedStates() {
   // Texas
   await createJurisdictionRequirement({
     state: 'TX',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 48,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 24,
-        notes: 'AMA Category 1 or AOA Category 1A',
       }
     ],
     specialRequirements: [
@@ -1727,11 +1912,27 @@ async function seedStates() {
         topic: 'Pain Management',
         requiredHours: 2,
         description: 'Required for first two renewal periods and every eight years thereafter',
-      }
+      },
+      {
+        topic: 'Pain Management Clinics',
+        requiredHours: 10,
+        description: 'Required for licensees practicing in pain management clinics',
+      },
+      
+
     ],
     legalCitations: [
       {
         citation: 'TX Occupations Code §§ 156.051 through 156.057',
+      },
+      {
+        citation: 'Tex. Admin. Code tit. 22, § 166.2',
+      },
+      {
+        citation: 'Tex. Admin. Code tit. 22, § 195.2',
+      },
+      {
+        citation: 'Tex. Admin. Code tit. 22, § 166.2',
       }
     ]
   });
@@ -1739,14 +1940,16 @@ async function seedStates() {
   // Utah
   await createJurisdictionRequirement({
     state: 'UT',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 40,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 34,
       }
     ],
@@ -1773,6 +1976,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'VT',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 30,
@@ -1800,6 +2005,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'VT',
     licenseType: 'DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 30,
@@ -1821,14 +2028,16 @@ async function seedStates() {
   // Virginia
   await createJurisdictionRequirement({
     state: 'VA',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 30,
       }
     ],
@@ -1850,6 +2059,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'WA',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 200,
@@ -1859,17 +2070,25 @@ async function seedStates() {
         topic: 'Suicide Assessment',
         requiredHours: 6,
         description: 'One-time requirement in suicide assessment, treatment, and management',
+        oneTime: true,
       },
       {
         topic: 'Opioid Prescribing',
         requiredHours: 1,
         description: 'One-time requirement in opioid prescribing best practices',
         effectiveDate: new Date('2019-01-01'),
+        oneTime: true,
       }
     ],
     legalCitations: [
       {
         citation: 'WAC 246-919-421-480',
+      },
+      {
+        citation: 'WAC 246-919-435',
+      },
+      {
+        citation: 'WAC 246-919-875',
       }
     ]
   });
@@ -1878,13 +2097,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'WA',
     licenseType: 'DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 150,
     cycleLength: 36,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 60,
       }
     ],
@@ -1912,13 +2133,15 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'WV',
     licenseType: 'MD',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 50,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1',
         requiredHours: 50,
         notes: 'Up to 20 hours may be earned by teaching or precepting',
       }
@@ -1934,6 +2157,53 @@ async function seedStates() {
     legalCitations: [
       {
         citation: 'W. Va. R. tit. 11, § 6-3',
+      },
+      {
+        citation: 'W. Va. Code, § 30-3-12',
+      }
+    ],
+    exceptions: [
+      {
+        description: 'The Board will accept as equivalent to 47 hours of Category 1 activity, participation in a board certification or recertification by an ABMS specialty board within the licensing period.',
+      }
+    ]
+  });
+
+  // West Virginia (DO)
+  await createJurisdictionRequirement({
+    state: 'WV',
+    licenseType: 'DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 32,
+    cycleLength: 24,
+    requirements: [
+      {
+        categoryName: 'AMA Category 1A | AOA Category 1B',
+        requiredHours: 16,
+      }
+    ],
+    specialRequirements: [
+      {
+        topic: 'Drug Diversion',
+        requiredHours: 3,
+        description: 'Required in drug diversion training and best practice prescribing',
+        effectiveDate: new Date('2014-05-01'),
+      }
+    ],
+    legalCitations: [
+      {
+        citation: 'W. Va. R. tit. 11, § 6-3',
+      },
+      {
+        citation: 'W. Va. Code, § 30-3-12',
+      }
+    ],
+    exceptions: [
+      {
+        description: 'A licensee participating in a clinical residency program for more than nine months out of the most recent licensing period may substitute a verification of participation in lieu of documentation of the CME hours specified.',
       }
     ]
   });
@@ -1941,14 +2211,16 @@ async function seedStates() {
   // Wisconsin
   await createJurisdictionRequirement({
     state: 'WI',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 30,
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A | AOA Category 1B | AMA Category 2',
         requiredHours: 30,
       }
     ],
@@ -1969,14 +2241,16 @@ async function seedStates() {
   // Wyoming
   await createJurisdictionRequirement({
     state: 'WY',
-    licenseType: 'MD',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
     requiresCme: true,
     hasSpecificContent: true,
     totalHours: 60,
     cycleLength: 36,
     requirements: [
       {
-        categoryName: 'Category 1 or 2',
+        categoryName: 'AMA Category 1 | AOA Category 1A | AOA Category 1B | AMA Category 2',
         requiredHours: 60,
       }
     ],
@@ -1992,7 +2266,7 @@ async function seedTerritories() {
   // Guam
   await createJurisdictionRequirement({
     state: 'GU',
-    licenseType: 'MD | DO',
+    licenseType: 'MD_DO',
     verified: true,
     live: true,
     requiresCme: true,
@@ -2001,7 +2275,7 @@ async function seedTerritories() {
     cycleLength: 24,
     requirements: [
       {
-        categoryName: 'AMA Category 1 | AOA Category 1',
+        categoryName: 'AMA Category 1 | AOA Category 1A',
         requiredHours: 25,
       }
     ],
@@ -2011,10 +2285,94 @@ async function seedTerritories() {
       }
     ]
   });
-}
+
   // Northern Mariana Islands (MP)
+  await createJurisdictionRequirement({
+    state: 'MP',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 25,
+    cycleLength: 12,
+    requirements: [
+      {
+        categoryName: 'AMA Category 1 | AOA Category 1A',
+        requiredHours: 25,
+      }
+    ],
+    legalCitations: [
+      {
+        citation: 'Public Law No. 7-48.',
+      }
+    ]
+  });
+
   // Puerto Rico (PR)
+  await createJurisdictionRequirement({
+    state: 'PR',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 60,
+    cycleLength: 36,
+    requirements: [
+      {
+        categoryName: 'AMA Category 1',
+        requiredHours: 40,
+        notes: '20 hours must be related to the licensee\'s practice area',
+      }
+    ],
+    specialRequirements: [
+      {
+        topic: 'Disease Prevention',
+        requiredHours: 10,
+        description: '',
+      },
+      {
+        topic: 'Emergency Medicine',
+        requiredHours: 20,
+        description: 'Must including courses in life support (CPR, ACLS, and PALS), emergency management, and the study of emergency medicine',
+        notes: 'Only required for physicians providing direct or indirect hospital emergency room services',
+      },
+      {
+        topic: 'Bioethics and Professionalism',
+        requiredHours: 6,
+        description: '',
+      }
+    ],
+    legalCitations: [
+      {
+        citation: '12-5 Vt. Code R. § 200',
+      }
+    ]
+  });
+
   // Virgin Islands (VI)
+  await createJurisdictionRequirement({
+    state: 'VI',
+    licenseType: 'MD_DO',
+    verified: true,
+    live: true,
+    requiresCme: true,
+    hasSpecificContent: true,
+    totalHours: 25,
+    cycleLength: 12,
+    requirements: [
+      {
+        categoryName: 'AMA Category 1 | AOA Category 1A',
+        requiredHours: 25,
+      }
+    ],
+    legalCitations: [
+      {
+        citation: 'VI Code 27 § 38d',
+      }
+    ]
+  });
 }
 
 async function seedRequirements() {

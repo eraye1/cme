@@ -163,6 +163,7 @@ enum ProcessingStatus {
 enum LicenseType {
   MD
   DO
+  MD_DO
 }
 
 model JurisdictionRequirement {
@@ -215,6 +216,8 @@ model SpecialRequirement {
   requiredHours        Int
   description          String
   effectiveDate        DateTime?
+  notes                String?
+  oneTime              Boolean  @default(false)
   
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
