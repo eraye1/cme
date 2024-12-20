@@ -2,6 +2,7 @@ import { api } from './index';
 import type { AuthTokens, LoginCredentials, User } from '../types/auth';
 import { storage } from '../utils/storage';
 import { isValidToken } from '../utils/token';
+import { LicenseType } from '../types/auth';
 
 // Add token to all requests
 api.interceptors.request.use((config) => {
@@ -85,6 +86,11 @@ export const authApi = {
       }
       throw error;
     }
+  },
+
+  updateProfile: async (data: { states?: string[]; licenseType?: LicenseType }) => {
+    const response = await api.patch('/auth/profile', data);
+    return response.data;
   },
 };
 

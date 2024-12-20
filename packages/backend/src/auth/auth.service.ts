@@ -5,6 +5,7 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { TokenResponse, JwtPayload } from './types/auth.types';
 import { SignupDto } from './dto/signup.dto';
+import { LicenseType } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -183,5 +184,24 @@ export class AuthService {
         updatedAt: true,
       },
     });
+  }
+
+  private sanitizeUser(user: any) {
+    const { password, ...sanitizedUser } = user;
+    return sanitizedUser;
+  }
+
+  async updateProfile(
+    userId: string,
+    updateData: { states?: string[]; licenseType?: LicenseType }
+  ) {
+    // First verify the user exists
+    const existingUser = await this.usersService.findOne(userId);
+    if (!existingUser) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const updatedUser = await this.usersService.update(userId, updateData);
+    return this.sanitizeUser(updatedUser);
   }
 } 

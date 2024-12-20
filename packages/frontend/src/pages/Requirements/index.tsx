@@ -75,7 +75,7 @@ export function Requirements() {
 
   const handleSaveToProfile = async () => {
     try {
-      await api.patch('/users/profile', {
+      await api.patch('/auth/profile', {
         states: selectedStates,
         licenseType: selectedLicenseType,
       });
