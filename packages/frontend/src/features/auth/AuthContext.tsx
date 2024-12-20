@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
-import type { AuthState, User, LoginCredentials, SignupData } from '../../types/auth';
+import type { AuthState, User, LoginCredentials, SignupData, SignUpResponse } from '../../types/auth';
 import { authApi } from '../../api/auth';
 import { useTokenMonitor } from '../../hooks/useTokenMonitor';
 import { storage } from '../../utils/storage';
@@ -7,7 +7,7 @@ import { storage } from '../../utils/storage';
 interface AuthContextType {
   state: AuthState;
   login: (credentials: LoginCredentials) => Promise<void>;
-  signup: (data: SignupData) => Promise<void>;
+  signup: (data: SignupData) => Promise<SignUpResponse>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -151,11 +151,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  async function signup(data: SignupData) {
+  async function signup(data: SignupData): Promise<SignUpResponse> {
     try {
       dispatch({ type: 'SET_LOADING' });
-      await authApi.signup(data);
-      await refreshUser();
+      // Get the response which includes tokens and user
+      const response = await authApi.signup(data);
+      
+      // Store the tokens
+      const stored = storage.setTokens(response.accessToken, response.refreshToken);
+      if (!stored) {
+        throw new Error('Failed to store auth tokens');
+      }
+
+      // Set the user in state
+      dispatch({ type: 'SET_USER', payload: response.user });
+      
+      return response;
     } catch (error) {
       dispatch({ 
         type: 'SET_ERROR', 

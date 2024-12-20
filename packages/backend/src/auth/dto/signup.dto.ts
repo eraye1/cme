@@ -1,11 +1,11 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsArray } from 'class-validator';
+import { LicenseType } from '@prisma/client';
 
 export class SignupDto {
   @IsEmail()
   email: string;
 
   @IsString()
-  @MinLength(6)
   password: string;
 
   @IsString()
@@ -18,4 +18,11 @@ export class SignupDto {
   @IsString()
   @IsOptional()
   specialty?: string;
+
+  @IsOptional()
+  licenseType?: LicenseType;
+
+  @IsArray()
+  @IsOptional()
+  states?: string[];
 } 

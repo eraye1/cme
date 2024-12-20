@@ -99,28 +99,65 @@ export class AuthService {
     }
   }
 
-  async signup(data: SignupDto): Promise<TokenResponse> {
-    // Check if user exists
-    const existingUser = await this.usersService.findByEmail(data.email);
-    if (existingUser) {
-      throw new ConflictException('Email already exists');
+  async signup(signupDto: SignupDto) {
+    try {
+      // Check if user exists first
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: signupDto.email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('An account with this email already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+      
+      const user = await this.prisma.user.create({
+        data: {
+          email: signupDto.email,
+          password: hashedPassword,
+          name: signupDto.name,
+          licenseNumber: signupDto.licenseNumber,
+          specialty: signupDto.specialty,
+          licenseType: signupDto.licenseType,
+          states: signupDto.states || [],
+          credentials: [],
+        },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          licenseNumber: true,
+          specialty: true,
+          licenseType: true,
+          states: true,
+          credentials: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      const tokens = await this.generateTokens(user.id);
+      return { user, ...tokens };
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('An account with this email already exists');
+      }
+      throw error;
     }
+  }
 
-    // Create user
-    const user = await this.usersService.create(data);
-
-    // Generate tokens
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+  async generateTokens(userId: string) {
+    const payload: JwtPayload = { sub: userId, email: '' };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, { expiresIn: '7d' }),
     ]);
 
-    // Store refresh token
     await this.prisma.refreshToken.create({
       data: {
         token: refreshToken,
-        userId: user.id,
+        userId: userId,
       },
     });
 

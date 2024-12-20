@@ -6,6 +6,7 @@ import { router } from './routes';
 import { Notifications } from '@mantine/notifications';
 import { HelmetProvider } from 'react-helmet-async';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { RequirementsList } from './pages/Requirements/RequirementsList';
 
 const queryClient = new QueryClient();
 

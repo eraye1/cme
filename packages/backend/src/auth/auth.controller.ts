@@ -19,14 +19,7 @@ export class AuthController {
 
   @Post('signup')
   async signup(@Body() signupDto: SignupDto) {
-    try {
-      return await this.authService.signup(signupDto);
-    } catch (error) {
-      if (error.code === 'P2002') {
-        throw new ConflictException('Email already exists');
-      }
-      throw error;
-    }
+    return this.authService.signup(signupDto);
   }
 
   @Post('login')

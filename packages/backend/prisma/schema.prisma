@@ -20,7 +20,9 @@ model User {
   name          String
   licenseNumber String?
   specialty     String?
-  credentials   String[] // e.g., ["MD", "PhD"]
+  credentials   String[]
+  licenseType   LicenseType?
+  states        String[]
   cmeCredits    CmeCredit[]
   templates     CmeTemplate[]
   requirements  Requirement[]

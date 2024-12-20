@@ -1,10 +1,18 @@
-import { AuthProvider } from '../features/auth/AuthContext';
-import { Outlet } from 'react-router-dom';
+import { MantineProvider, MantineThemeOverride } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
+import { AuthProvider } from '../features/auth/AuthProvider';
 
-export function AppProvider() {
+const theme: MantineThemeOverride = {
+  // ... your theme configuration
+};
+
+export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
-    <AuthProvider>
-      <Outlet />
-    </AuthProvider>
+    <MantineProvider theme={theme} withNormalizeCSS withGlobalStyles>
+      <Notifications position="top-center" limit={3} />
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </MantineProvider>
   );
 } 

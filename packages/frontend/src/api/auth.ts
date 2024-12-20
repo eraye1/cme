@@ -16,6 +16,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export interface SignupData {
+  email: string;
+  password: string;
+  name: string;
+  licenseNumber?: string;
+  licenseType?: LicenseType;
+  states?: string[];
+}
+
 export const authApi = {
   login: async (credentials: LoginCredentials) => {
     console.log('[AuthAPI] Attempting login');
@@ -66,13 +75,16 @@ export const authApi = {
 
   getProfile: () => api.get<User>('/auth/profile'),
 
-  signup: async (data: SignupData) => {
-    const { data: tokens } = await api.post<AuthTokens>('/auth/signup', data);
-    const stored = storage.setTokens(tokens.accessToken, tokens.refreshToken);
-    if (!stored) {
-      throw new Error('Failed to store tokens during signup');
+  signup: async (data: SignupData): Promise<SignUpResponse> => {
+    try {
+      const response = await api.post<SignUpResponse>('/auth/signup', data);
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 409) {
+        throw new Error('An account with this email already exists');
+      }
+      throw error;
     }
-    return tokens;
   },
 };
 

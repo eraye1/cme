@@ -12,8 +12,14 @@ export class UsersService {
 
     return this.prisma.user.create({
       data: {
-        ...data,
+        email: data.email,
         password: hashedPassword,
+        name: data.name,
+        licenseNumber: data.licenseNumber,
+        specialty: data.specialty,
+        licenseType: data.licenseType,
+        states: data.states || [],
+        credentials: [],
       },
     });
   }
