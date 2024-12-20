@@ -54,8 +54,10 @@ export function RequirementsList({
       if (selectedStates.length > 0 && !selectedStates.includes(req.state)) {
         return false;
       }
-      if (selectedLicenseType && req.licenseType !== selectedLicenseType) {
-        return false;
+      if (selectedLicenseType) {
+        if (req.licenseType !== selectedLicenseType && req.licenseType !== 'MD_DO') {
+          return false;
+        }
       }
       
       if (searchQuery) {

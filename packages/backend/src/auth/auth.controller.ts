@@ -27,10 +27,12 @@ export class AuthController {
     return this.authService.login(email, password);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req) {
-    return req.user;
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Req() req) {
+    console.log('[AuthController] getProfile:', { req });
+    const user = await this.authService.getProfile(req.user.id);
+    return user;
   }
 
   @Post('refresh')

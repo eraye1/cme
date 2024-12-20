@@ -33,6 +33,8 @@ export class UsersService {
         name: true,
         licenseNumber: true,
         specialty: true,
+        licenseType: true,
+        states: true,
         credentials: true,
         createdAt: true,
         updatedAt: true,

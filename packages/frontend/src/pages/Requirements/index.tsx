@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Stack, Title, Container, Group, Select, MultiSelect, Button, Switch, Text } from '@mantine/core';
+import { Stack, Title, Container, Group, Select, MultiSelect, Button, Switch, Text, Loader } from '@mantine/core';
 import { useAuth } from '../../features/auth/AuthContext';
 import { RequirementsList } from './RequirementsList';
 import { LicenseType } from '../../api/requirements';
 import { US_STATES } from '../../constants/states';
 import { notifications } from '@mantine/notifications';
-import { IconCheck } from '@tabler/icons-react';
+import { IconCheck, IconFilter, IconFilterOff } from '@tabler/icons-react';
 import { api } from '../../api';
 
 const LICENSE_TYPES = [
@@ -43,22 +43,37 @@ function RequirementsSummary({ requirements }: { requirements: JurisdictionRequi
 }
 
 export function Requirements() {
-  const { user } = useAuth();
-  const [selectedStates, setSelectedStates] = useState<string[]>(user?.states || []);
-  const [selectedLicenseType, setSelectedLicenseType] = useState<LicenseType | null>(
-    user?.licenseType || null
-  );
+  const { state: { user, isLoading } } = useAuth();
+
+  const [isFilteringByProfile, setIsFilteringByProfile] = useState(true);
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [selectedLicenseType, setSelectedLicenseType] = useState<LicenseType | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('state');
   const [groupByLicense, setGroupByLicense] = useState(false);
 
+  // Update filters when user is loaded
   useEffect(() => {
-    if (user) {
+    console.log('Requirements effect:', { isLoading, user, isFilteringByProfile });
+    if (!isLoading && user && isFilteringByProfile) {
+      console.log('Setting states to:', user.states);
       setSelectedStates(user.states);
       setSelectedLicenseType(user.licenseType || null);
     }
-  }, [user]);
+  }, [user, isLoading, isFilteringByProfile]);
 
-  const handleSaveStates = async () => {
+  const handleToggleFilter = () => {
+    setIsFilteringByProfile(!isFilteringByProfile);
+    if (isFilteringByProfile) {
+      // Switching to manual filter - keep current selection
+      // This allows users to start from their states and modify from there
+    } else {
+      // Switching back to profile filter
+      setSelectedStates(user?.states || []);
+      setSelectedLicenseType(user?.licenseType || null);
+    }
+  };
+
+  const handleSaveToProfile = async () => {
     try {
       await api.patch('/users/profile', {
         states: selectedStates,
@@ -66,74 +81,87 @@ export function Requirements() {
       });
       
       notifications.show({
-        title: 'States Updated',
-        message: 'Your states and license type have been saved',
+        title: 'Profile Updated',
+        message: 'Your states and license type have been saved to your profile',
         icon: <IconCheck size="1.1rem" />,
         color: 'green',
       });
+      
+      // Switch back to profile filtering
+      setIsFilteringByProfile(true);
     } catch (error) {
       notifications.show({
         title: 'Error',
-        message: 'Failed to update states',
+        message: 'Failed to update profile',
         color: 'red',
       });
     }
   };
 
+  if (isLoading) {
+    return (
+      <Container size="xl">
+        <Stack spacing="md">
+          <Title order={1}>CME Requirements</Title>
+          <Loader />
+        </Stack>
+      </Container>
+    );
+  }
+
   return (
     <Container size="xl">
       <Stack spacing="md">
-        <Title order={1}>CME Requirements by State</Title>
-        
-        <Group align="flex-end">
-          <MultiSelect
-            label="Select States"
-            placeholder="Choose states"
-            data={US_STATES}
-            value={selectedStates}
-            onChange={setSelectedStates}
-            searchable
-            clearable
-            style={{ minWidth: 300 }}
-          />
-          
-          <Select
-            label="License Type"
-            placeholder="Choose license type"
-            data={LICENSE_TYPES}
-            value={selectedLicenseType}
-            onChange={(value) => setSelectedLicenseType(value as LicenseType)}
-            clearable
-            style={{ minWidth: 150 }}
-          />
-
+        <Group position="apart">
+          <Title order={1}>CME Requirements</Title>
           <Group spacing="xs">
+            <Button
+              variant="subtle"
+              leftIcon={isFilteringByProfile ? <IconFilter /> : <IconFilterOff />}
+              onClick={handleToggleFilter}
+            >
+              {isFilteringByProfile ? 'Customize Filter' : 'Use Profile Filter'}
+            </Button>
+          </Group>
+        </Group>
+
+        {!isFilteringByProfile && (
+          <Group align="flex-end">
+            <MultiSelect
+              label="States"
+              placeholder="Select states"
+              data={US_STATES}
+              value={selectedStates}
+              onChange={setSelectedStates}
+              searchable
+              clearable
+              style={{ minWidth: 300 }}
+            />
+
+            <Select
+              label="License Type"
+              placeholder="Select license type"
+              data={LICENSE_TYPES}
+              value={selectedLicenseType}
+              onChange={(value) => setSelectedLicenseType(value as LicenseType)}
+              clearable
+              style={{ minWidth: 150 }}
+            />
+
             {user && (
-              <Button 
-                variant="light" 
-                onClick={() => {
-                  setSelectedStates(user.states);
-                  setSelectedLicenseType(user.licenseType || null);
-                }}
-              >
-                Reset to My States
-              </Button>
-            )}
-            
-            {user && (
-              <Button 
-                onClick={handleSaveStates}
+              <Button
+                onClick={handleSaveToProfile}
                 disabled={
                   selectedStates.length === 0 ||
                   (JSON.stringify(selectedStates) === JSON.stringify(user.states) &&
                     selectedLicenseType === user.licenseType)
                 }
               >
-                Save as My States
+                Save to Profile
               </Button>
             )}
           </Group>
-        </Group>
+        )}
 
         <Group position="apart">
           <Group>

@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 type AuthAction =
   | { type: 'SET_LOADING' }
+  | { type: 'SET_LOADING_DONE' }
   | { type: 'SET_USER'; payload: User }
   | { type: 'SET_ERROR'; payload: string }
   | { type: 'CLEAR_USER' };
@@ -24,6 +25,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, isLoading: true, error: null };
+    case 'SET_LOADING_DONE':
+      return { ...state, isLoading: false };
     case 'SET_USER':
       return {
         ...state,
@@ -58,28 +61,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
-  // Synchronize auth state with token presence
+  // Initial auth check
   useEffect(() => {
-    const { accessToken } = storage.getTokens();
-    console.log('[AuthProvider] Initial token check:', { hasToken: !!accessToken });
-    
-    if (!accessToken) {
-      dispatch({ type: 'CLEAR_USER' });
-      return;
-    }
-
     const initializeAuth = async () => {
       try {
+        const { accessToken } = storage.getTokens();
+        console.log('[AuthProvider] Initial token check:', { hasToken: !!accessToken });
+        
+        if (!accessToken) {
+          dispatch({ type: 'CLEAR_USER' });
+          return;
+        }
+
         const { data: user } = await authApi.getProfile();
         dispatch({ type: 'SET_USER', payload: user });
       } catch (error) {
         console.error('[AuthProvider] Failed to initialize auth:', error);
         dispatch({ type: 'CLEAR_USER' });
+      } finally {
+        dispatch({ type: 'SET_LOADING_DONE' });
       }
     };
 
     initializeAuth();
-  }, []); // Run only on mount
+  }, []);
 
   console.log('[AuthProvider] Current state:', state);
 

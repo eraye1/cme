@@ -166,4 +166,22 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async getProfile(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        licenseNumber: true,
+        specialty: true,
+        licenseType: true,
+        states: true,
+        credentials: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 } 
