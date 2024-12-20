@@ -57,12 +57,15 @@ export class DocumentsService {
     try {
       // Delete the physical file
       const filePath = this.getFilePath(document.fileUrl.split('/').pop()!);
+      console.log('[DocumentsService] Attempting to delete file:', filePath);
       await fs.unlink(filePath);
+      console.log('[DocumentsService] File deleted successfully');
     } catch (error) {
-      console.error('Error deleting file:', error);
+      console.error('[DocumentsService] Error deleting file:', error);
       // Continue with document deletion even if file deletion fails
     }
 
+    console.log('[DocumentsService] Deleting document from database:', id);
     return this.prisma.document.delete({
       where: { id },
     });

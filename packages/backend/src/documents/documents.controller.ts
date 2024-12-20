@@ -12,6 +12,10 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
   UseGuards,
+  Res,
+  StreamableFile,
+  Header,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DocumentsService } from './documents.service';
@@ -21,6 +25,9 @@ import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { diskStorage } from 'multer';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import { Response } from 'express';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
@@ -92,5 +99,27 @@ export class DocumentsController {
     @Body() updateDocumentDto: UpdateDocumentDto,
   ) {
     return this.documentsService.update(id, updateDocumentDto);
+  }
+
+  @Get(':id/download')
+  @Header('Content-Disposition', 'attachment')
+  async downloadFile(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const document = await this.documentsService.findOne(id);
+    const fileName = document.fileUrl.split('/').pop();
+    const filePath = this.documentsService.getFilePath(fileName);
+
+    try {
+      const file = createReadStream(filePath);
+      res.set({
+        'Content-Type': document.fileType,
+        'Content-Disposition': `attachment; filename="${document.fileName}"`,
+      });
+      return new StreamableFile(file);
+    } catch (error) {
+      throw new NotFoundException('File not found');
+    }
   }
 } 

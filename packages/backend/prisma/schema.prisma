@@ -159,3 +159,74 @@ enum ProcessingStatus {
   COMPLETED
   FAILED
 }
+
+enum LicenseType {
+  MD
+  DO
+}
+
+model JurisdictionRequirement {
+  id                String   @id @default(cuid())
+  state             String   // e.g., "AZ"
+  licenseType       LicenseType
+  verified          Boolean  @default(false)
+  live              Boolean  @default(false)
+  requiresCme       Boolean  @default(true)
+  hasSpecificContent Boolean @default(false)
+  
+  // Basic Requirements
+  totalHours        Int
+  cycleLength       Int      // in months
+  
+  // Category Requirements
+  requirements      RequirementCategory[]
+  
+  // Special Content Requirements
+  specialRequirements SpecialRequirement[]
+  
+  // Legal References
+  legalCitations    LegalCitation[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([state, licenseType])
+}
+
+model RequirementCategory {
+  id                    String   @id @default(cuid())
+  jurisdictionId        String
+  jurisdiction          JurisdictionRequirement @relation(fields: [jurisdictionId], references: [id])
+  categoryName          String   // e.g., "AOA Category 1-A"
+  requiredHours         Int
+  maximumHours         Int?     // optional maximum
+  annualLimit         Int?     // optional annual limit
+  notes               String?
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model SpecialRequirement {
+  id                    String   @id @default(cuid())
+  jurisdictionId        String
+  jurisdiction          JurisdictionRequirement @relation(fields: [jurisdictionId], references: [id])
+  topic                String   // e.g., "opioid-related"
+  requiredHours        Int
+  description          String
+  effectiveDate        DateTime?
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model LegalCitation {
+  id                    String   @id @default(cuid())
+  jurisdictionId        String
+  jurisdiction          JurisdictionRequirement @relation(fields: [jurisdictionId], references: [id])
+  citation              String   // e.g., "Ariz. Admin. Code R4-22-207"
+  url                   String?  // Optional link to the actual law
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}

@@ -1,4 +1,5 @@
 import { MantineProvider } from '@mantine/core';
+import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes';
@@ -14,8 +15,10 @@ function App() {
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
           <MantineProvider>
-            <Notifications />
-            <RouterProvider router={router} />
+            <ModalsProvider>
+              <Notifications />
+              <RouterProvider router={router} />
+            </ModalsProvider>
           </MantineProvider>
         </QueryClientProvider>
       </HelmetProvider>

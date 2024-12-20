@@ -1,4 +1,4 @@
-import { AppShell, Burger, Group, Title, Button, Menu, Text } from '@mantine/core';
+import { AppShell, Burger, Group, Title, Button, Menu } from '@mantine/core';
 import { MainNav } from './MainNav';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';

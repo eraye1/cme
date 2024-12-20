@@ -38,7 +38,10 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
   });
 
   const deleteDocument = useMutation({
-    mutationFn: documentsApi.delete,
+    mutationFn: (documentId: string) => {
+      console.log('Delete mutation called with ID:', documentId);
+      return documentsApi.delete(documentId);
+    },
     onSuccess: () => {
       notifications.show({
         title: 'Success',
@@ -48,15 +51,18 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
       queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
     },
     onError: (error) => {
+      console.error('Delete error:', error);
       notifications.show({
         title: 'Error',
-        message: 'Failed to delete document',
+        message: error instanceof Error ? error.message : 'Failed to delete document',
         color: 'red',
       });
     },
   });
 
   const handleDelete = (id: string, fileName: string) => {
+    console.log('handleDelete called with:', { id, fileName });
+    
     modals.openConfirmModal({
       title: 'Delete Document',
       children: (
@@ -66,8 +72,27 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
       ),
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
-      onConfirm: () => deleteDocument.mutate(id),
+      onConfirm: async () => {
+        console.log('Modal confirmed, deleting document:', id);
+        try {
+          await deleteDocument.mutateAsync(id);
+        } catch (error) {
+          console.error('Error in delete confirmation:', error);
+        }
+      },
     });
+  };
+
+  const handleDownload = async (id: string, fileName: string) => {
+    try {
+      await documentsApi.download(id);
+    } catch (error) {
+      notifications.show({
+        title: 'Download Failed',
+        message: 'Failed to download document. Please try again.',
+        color: 'red',
+      });
+    }
   };
 
   if (isLoading) {
@@ -152,7 +177,7 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                 </Badge>
                 <ActionIcon
                   variant="light"
-                  onClick={() => window.open(doc.fileUrl, '_blank')}
+                  onClick={() => handleDownload(doc.id, doc.fileName)}
                   disabled={doc.status === 'PROCESSING'}
                   title="Download document"
                 >
@@ -169,8 +194,12 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                 <ActionIcon
                   variant="light"
                   color="red"
-                  onClick={() => handleDelete(doc.id, doc.fileName)}
-                  loading={deleteDocument.isPending}
+                  onClick={() => {
+                    console.log('Delete button clicked for document:', doc.id);
+                    handleDelete(doc.id, doc.fileName);
+                  }}
+                  loading={deleteDocument.isPending && deleteDocument.variables === doc.id}
+                  disabled={doc.status === 'PROCESSING'}
                   title="Delete document"
                 >
                   <IconTrash size="1rem" />
