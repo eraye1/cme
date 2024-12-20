@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Stack, Title, Container, Group, Select, MultiSelect, Button, Switch, Text, Loader } from '@mantine/core';
+import { Stack, Title, Container, Group, Select, MultiSelect, Button, Switch, Text, Loader, Badge } from '@mantine/core';
 import { useAuth } from '../../features/auth/AuthContext';
 import { RequirementsList } from './RequirementsList';
 import { LicenseType } from '../../api/requirements';
@@ -7,6 +7,7 @@ import { US_STATES } from '../../constants/states';
 import { notifications } from '@mantine/notifications';
 import { IconCheck, IconFilter, IconFilterOff } from '@tabler/icons-react';
 import { api } from '../../api';
+import { STATE_SUPPORT_STATUS, isStateSupported } from '../../utils/formatters';
 
 const LICENSE_TYPES = [
   { value: 'MD', label: 'MD' },
@@ -130,12 +131,21 @@ export function Requirements() {
             <MultiSelect
               label="States"
               placeholder="Select states"
-              data={US_STATES}
+              data={US_STATES.map(state => ({
+                value: state.value,
+                label: state.label + (isStateSupported(state.value) ? '' : ' (Coming Soon)'),
+                disabled: !isStateSupported(state.value), // Optional: prevent selection of unsupported states
+              }))}
               value={selectedStates}
               onChange={setSelectedStates}
               searchable
               clearable
               style={{ minWidth: 300 }}
+              rightSection={selectedStates.some(s => !isStateSupported(s)) && (
+                <Badge color="yellow" size="sm">
+                  Some states not yet supported
+                </Badge>
+              )}
             />
 
             <Select

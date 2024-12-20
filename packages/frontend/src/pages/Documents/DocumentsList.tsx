@@ -152,6 +152,9 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                 <Text size="sm" c="dimmed">
                   Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
                 </Text>
+                <Text size="sm" c="dimmed">
+                  Completed on {new Date(doc.createdAt).toLocaleDateString()}
+                </Text>
                 {doc.provider && (
                   <Text size="sm">Provider: {doc.provider}</Text>
                 )}

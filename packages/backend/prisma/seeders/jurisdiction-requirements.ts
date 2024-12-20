@@ -358,8 +358,8 @@ async function seedStates() {
   await createJurisdictionRequirement({
     state: 'CO',
     licenseType: 'MD_DO',
-    verified: true,
-    live: true,
+    verified: false,
+    live: false,
     requiresCme: true,
     hasSpecificContent: false,
     totalHours: 0,

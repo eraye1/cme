@@ -1,6 +1,6 @@
-import { Group, Text, useMantineTheme, rem } from '@mantine/core';
+import { Group, Text, useMantineTheme, rem, Stack, Box, List } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
-import { IconUpload, IconX, IconFile } from '@tabler/icons-react';
+import { IconUpload, IconX, IconFile, IconCircleCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '../../features/auth/AuthContext';
 import { documentsApi } from '../../api/documents';
@@ -44,42 +44,77 @@ export function DocumentUpload({ onSuccess }: DocumentUploadProps) {
   };
 
   return (
-    <Dropzone
-      onDrop={handleDrop}
-      maxSize={5 * 1024 ** 2}
-      accept={['application/pdf', 'image/jpeg', 'image/png']}
-      loading={uploading}
-      multiple={false}
-    >
-      <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
-        <Dropzone.Accept>
-          <IconUpload
-            style={{ width: rem(52), height: rem(52), color: theme.colors.blue[6] }}
-            stroke={1.5}
-          />
-        </Dropzone.Accept>
-        <Dropzone.Reject>
-          <IconX
-            style={{ width: rem(52), height: rem(52), color: theme.colors.red[6] }}
-            stroke={1.5}
-          />
-        </Dropzone.Reject>
-        <Dropzone.Idle>
-          <IconFile
-            style={{ width: rem(52), height: rem(52), color: theme.colors.gray[6] }}
-            stroke={1.5}
-          />
-        </Dropzone.Idle>
+    <Box p="md">
+      <Stack spacing="md">
+        <Stack spacing="xs">
+          <Text fw={500}>Accepted CME Documentation:</Text>
+          <List
+            spacing="xs"
+            size="sm"
+            c="dimmed"
+            icon={
+              <IconCircleCheck
+                style={{ width: rem(16), height: rem(16) }}
+                color={theme.colors.blue[6]}
+              />
+            }
+          >
+            <List.Item>Receipts of CME activities</List.Item>
+            <List.Item>CME certificates</List.Item>
+            <List.Item>Conference attendance certificates</List.Item>
+            <List.Item>CME transcripts from organizations</List.Item>
+            <List.Item>Hospital CME activity records</List.Item>
+          </List>
 
-        <div>
-          <Text size="xl" inline>
-            {uploading ? 'Uploading...' : 'Drag CME documents here or click to select'}
+          <Text size="sm" c="dimmed" mt={5}>
+            Supported formats: PDF, JPG, PNG (max 5MB)
           </Text>
-          <Text size="sm" c="dimmed" inline mt={7}>
-            Upload your CME certificates, transcripts, or other documentation (PDF, JPG, PNG)
-          </Text>
-        </div>
-      </Group>
-    </Dropzone>
+        </Stack>
+        
+        <Dropzone
+          onDrop={handleDrop}
+          maxSize={5 * 1024 ** 2}
+          accept={['application/pdf', 'image/jpeg', 'image/png']}
+          loading={uploading}
+          multiple={false}
+          styles={(theme) => ({
+            root: {
+              borderWidth: 2,
+              padding: theme.spacing.xl,
+            }
+          })}
+        >
+          <Stack align="center" spacing="xs" style={{ pointerEvents: 'none' }}>
+            <Dropzone.Accept>
+              <IconUpload
+                style={{ width: rem(52), height: rem(52), color: theme.colors.blue[6] }}
+                stroke={1.5}
+              />
+            </Dropzone.Accept>
+            <Dropzone.Reject>
+              <IconX
+                style={{ width: rem(52), height: rem(52), color: theme.colors.red[6] }}
+                stroke={1.5}
+              />
+            </Dropzone.Reject>
+            <Dropzone.Idle>
+              <IconFile
+                style={{ width: rem(52), height: rem(52), color: theme.colors.dimmed }}
+                stroke={1.5}
+              />
+            </Dropzone.Idle>
+
+            <div>
+              <Text size="xl" inline fw={700} ta="center">
+                {uploading ? 'Uploading...' : 'Drag documents here'}
+              </Text>
+              <Text size="sm" c="dimmed" ta="center" mt={7}>
+                or click to browse files
+              </Text>
+            </div>
+          </Stack>
+        </Dropzone>
+      </Stack>
+    </Box>
   );
 } 
