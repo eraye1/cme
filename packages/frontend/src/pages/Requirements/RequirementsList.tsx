@@ -13,6 +13,7 @@ import {
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { JurisdictionRequirement, requirementsApi, LicenseType } from '../../api/requirements';
+import { formatLicenseType, getStateName } from '../../utils/formatters';
 
 interface RequirementsListProps {
   selectedStates: string[];
@@ -113,7 +114,10 @@ export function RequirementsList({
             <Stack spacing="xs">
               <Group position="apart">
                 <Text size="lg" weight={500}>
-                  {req.state} - {req.licenseType}
+                  {getStateName(req.state)}
+                  <Text span size="sm" color="dimmed">
+                    ({req.state})
+                  </Text>
                 </Text>
                 {req.verified && (
                   <Badge color="green" variant="light">
@@ -123,6 +127,10 @@ export function RequirementsList({
               </Group>
 
               <Text size="sm" color="dimmed">
+                {formatLicenseType(req.licenseType)}
+              </Text>
+
+              <Text size="sm">
                 {req.totalHours} hours every {req.cycleLength} months
               </Text>
 
