@@ -1,6 +1,3 @@
-export * from './auth';
-export * from './documents';
-
 export enum ActivityType {
   CONFERENCE = 'CONFERENCE',
   ONLINE_COURSE = 'ONLINE_COURSE',
@@ -9,21 +6,45 @@ export enum ActivityType {
   MANUSCRIPT_REVIEW = 'MANUSCRIPT_REVIEW',
   SELF_ASSESSMENT = 'SELF_ASSESSMENT',
   POINT_OF_CARE = 'POINT_OF_CARE',
-  BOARD_REVIEW = 'BOARD_REVIEW',
+  BOARD_REVIEW = 'BOARD_REVIEW'
 }
 
 export enum CreditCategory {
-  CATEGORY_1 = 'CATEGORY_1',
-  CATEGORY_2 = 'CATEGORY_2',
+  AMA_PRA_CATEGORY_1 = 'AMA_PRA_CATEGORY_1',
+  AMA_PRA_CATEGORY_2 = 'AMA_PRA_CATEGORY_2',
+  AOA_CATEGORY_1A = 'AOA_CATEGORY_1A',
+  AOA_CATEGORY_1B = 'AOA_CATEGORY_1B',
+  AOA_CATEGORY_2A = 'AOA_CATEGORY_2A',
+  AOA_CATEGORY_2B = 'AOA_CATEGORY_2B',
   SPECIALTY = 'SPECIALTY',
+  OTHER = 'OTHER'
+}
+
+export enum SpecialTopicType {
+  OPIOID_EDUCATION = 'OPIOID_EDUCATION',
+  PAIN_MANAGEMENT = 'PAIN_MANAGEMENT',
+  CONTROLLED_SUBSTANCES = 'CONTROLLED_SUBSTANCES',
+  ETHICS = 'ETHICS',
+  CULTURAL_COMPETENCY = 'CULTURAL_COMPETENCY',
+  MEDICAL_ERRORS = 'MEDICAL_ERRORS',
+  INFECTION_CONTROL = 'INFECTION_CONTROL',
+  DOMESTIC_VIOLENCE = 'DOMESTIC_VIOLENCE',
+  HUMAN_TRAFFICKING = 'HUMAN_TRAFFICKING',
+  CHILD_ABUSE = 'CHILD_ABUSE',
+  END_OF_LIFE_CARE = 'END_OF_LIFE_CARE',
+  RISK_MANAGEMENT = 'RISK_MANAGEMENT',
+  SUICIDE_PREVENTION = 'SUICIDE_PREVENTION',
+  IMPLICIT_BIAS = 'IMPLICIT_BIAS'
 }
 
 export enum ProcessingStatus {
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
+  FAILED = 'FAILED'
 }
+
+export type DocumentSourceType = 'UPLOAD' | 'EMAIL' | 'PHOTO';
 
 export interface Document {
   id: string;
@@ -31,14 +52,17 @@ export interface Document {
   fileName: string;
   fileType: string;
   fileUrl: string;
-  title?: string;
-  provider?: string;
-  credits?: number;
-  completedDate?: string;
-  expirationDate?: string;
-  category?: CreditCategory;
-  activityType?: ActivityType;
-  confidence?: number;
+  title: string | null;
+  provider: string | null;
+  credits: number | null;
+  completedDate: string | null;
+  category: CreditCategory | null;
+  activityType: ActivityType | null;
+  confidence: number;
+  description: string | null;
+  specialRequirements: SpecialTopicType[];
+  topics: string[];
+  notes: string | null;
   status: ProcessingStatus;
   error?: string;
   createdAt: string;

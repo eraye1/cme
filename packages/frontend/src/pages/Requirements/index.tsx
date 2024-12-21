@@ -54,9 +54,7 @@ export function Requirements() {
 
   // Update filters when user is loaded
   useEffect(() => {
-    console.log('Requirements effect:', { isLoading, user, isFilteringByProfile });
     if (!isLoading && user && isFilteringByProfile) {
-      console.log('Setting states to:', user.states);
       setSelectedStates(user.states);
       setSelectedLicenseType(user.licenseType || null);
     }
@@ -118,7 +116,6 @@ export function Requirements() {
           <Group spacing="xs">
             <Button
               variant="subtle"
-              leftIcon={isFilteringByProfile ? <IconFilter /> : <IconFilterOff />}
               onClick={handleToggleFilter}
             >
               {isFilteringByProfile ? 'Customize Filter' : 'Use Profile Filter'}

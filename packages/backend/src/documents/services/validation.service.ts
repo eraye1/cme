@@ -24,13 +24,8 @@ export class ValidationService {
     const warnings: string[] = [];
 
     // Check dates make sense
-    if (extractedData.completedDate && extractedData.expirationDate) {
-      const completed = new Date(extractedData.completedDate);
-      const expires = new Date(extractedData.expirationDate);
-      
-      if (completed > expires) {
-        warnings.push('Warning: Completion date is after expiration date');
-      }
+    if (extractedData.completedDate) {
+      new Date(extractedData.completedDate);
     }
 
     // Check if credits are reasonable
@@ -100,14 +95,20 @@ export class ValidationService {
     const normalized = category.toLowerCase().replace(/\s+/g, '');
     
     const categoryMap: Record<string, CreditCategory> = {
-      'cat1': CreditCategory.CATEGORY_1,
-      'cat2': CreditCategory.CATEGORY_2,
-      'category1': CreditCategory.CATEGORY_1,
-      'category2': CreditCategory.CATEGORY_2,
-      'categoryI': CreditCategory.CATEGORY_1,
-      'categoryII': CreditCategory.CATEGORY_2,
-      '1': CreditCategory.CATEGORY_1,
-      '2': CreditCategory.CATEGORY_2,
+      'cat1': CreditCategory.AMA_PRA_CATEGORY_1,
+      'cat2': CreditCategory.AMA_PRA_CATEGORY_2,
+      'category1': CreditCategory.AMA_PRA_CATEGORY_1,
+      'category2': CreditCategory.AMA_PRA_CATEGORY_2,
+      'categoryI': CreditCategory.AMA_PRA_CATEGORY_1,
+      'categoryII': CreditCategory.AMA_PRA_CATEGORY_2,
+      '1': CreditCategory.AMA_PRA_CATEGORY_1,
+      '2': CreditCategory.AMA_PRA_CATEGORY_2,
+      '1a': CreditCategory.AOA_CATEGORY_1A,
+      '1b': CreditCategory.AOA_CATEGORY_1B,
+      '2a': CreditCategory.AOA_CATEGORY_2A,
+      '2b': CreditCategory.AOA_CATEGORY_2B,
+      'specialty': CreditCategory.SPECIALTY,
+      'other': CreditCategory.OTHER,
     };
 
     return categoryMap[normalized] || null;

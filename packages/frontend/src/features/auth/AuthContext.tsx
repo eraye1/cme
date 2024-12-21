@@ -66,7 +66,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       try {
         const { accessToken } = storage.getTokens();
-        console.log('[AuthProvider] Initial token check:', { hasToken: !!accessToken });
         
         if (!accessToken) {
           dispatch({ type: 'CLEAR_USER' });
@@ -76,7 +75,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: user } = await authApi.getProfile();
         dispatch({ type: 'SET_USER', payload: user });
       } catch (error) {
-        console.error('[AuthProvider] Failed to initialize auth:', error);
         dispatch({ type: 'CLEAR_USER' });
       } finally {
         dispatch({ type: 'SET_LOADING_DONE' });
@@ -86,24 +84,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
   }, []);
 
-  console.log('[AuthProvider] Current state:', state);
-
   const refreshUser = useCallback(async () => {
     try {
-      console.log('[AuthProvider] Refreshing user profile');
       const token = localStorage.getItem('accessToken');
       if (!token) {
-        console.log('[AuthProvider] No token found during refresh');
         dispatch({ type: 'CLEAR_USER' });
         return;
       }
 
       dispatch({ type: 'SET_LOADING' });
       const { data: user } = await authApi.getProfile();
-      console.log('[AuthProvider] User profile refreshed:', user);
       dispatch({ type: 'SET_USER', payload: user });
     } catch (error) {
-      console.error('[AuthProvider] Error refreshing user:', error);
       // Only clear user if it's an auth error
       if (error.response?.status === 401) {
         dispatch({ type: 'CLEAR_USER' });

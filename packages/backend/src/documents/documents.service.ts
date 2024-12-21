@@ -57,15 +57,11 @@ export class DocumentsService {
     try {
       // Delete the physical file
       const filePath = this.getFilePath(document.fileUrl.split('/').pop()!);
-      console.log('[DocumentsService] Attempting to delete file:', filePath);
       await fs.unlink(filePath);
-      console.log('[DocumentsService] File deleted successfully');
     } catch (error) {
-      console.error('[DocumentsService] Error deleting file:', error);
       // Continue with document deletion even if file deletion fails
     }
 
-    console.log('[DocumentsService] Deleting document from database:', id);
     return this.prisma.document.delete({
       where: { id },
     });
@@ -118,14 +114,21 @@ export class DocumentsService {
   async update(id: string, data: UpdateDocumentDto) {
     await this.findOne(id);
     
-    const updateData: Prisma.DocumentUpdateInput = {
-      ...(data.title && { title: data.title }),
-      ...(data.provider && { provider: data.provider }),
-      ...(data.credits !== undefined && { credits: data.credits }),
-      ...(data.completedDate && { completedDate: new Date(data.completedDate) }),
-      ...(data.expirationDate && { expirationDate: new Date(data.expirationDate) }),
-      ...(data.category && { category: data.category }),
-      ...(data.activityType && { activityType: data.activityType }),
+    const updateData = {
+      title: data.title,
+      provider: data.provider,
+      credits: data.credits,
+      completedDate: data.completedDate ? new Date(data.completedDate) : null,
+      category: data.category,
+      activityType: data.activityType,
+      description: data.description,
+      specialRequirements: data.specialRequirements ? {
+        set: data.specialRequirements
+      } : undefined,
+      topics: data.topics ? {
+        set: data.topics
+      } : undefined,
+      notes: data.notes
     };
 
     return this.prisma.document.update({
@@ -137,16 +140,20 @@ export class DocumentsService {
   async updateWithExtractedData(id: string, data: ExtractedDataDto) {
     await this.findOne(id);
     
-    const updateData: Prisma.DocumentUpdateInput = {
-      ...(data.title && { title: data.title }),
-      ...(data.provider && { provider: data.provider }),
-      ...(data.credits !== undefined && { credits: data.credits }),
-      ...(data.completedDate && { completedDate: new Date(data.completedDate) }),
-      ...(data.expirationDate && { expirationDate: new Date(data.expirationDate) }),
-      ...(data.category && { category: data.category }),
-      ...(data.activityType && { activityType: data.activityType }),
-      ...(data.description && { description: data.description }),
-      ...(data.notes && { notes: data.notes }),
+    const updateData = {
+      title: data.title,
+      provider: data.provider,
+      credits: data.credits,
+      completedDate: data.completedDate ? new Date(data.completedDate) : null,
+      category: data.category,
+      activityType: data.activityType,
+      description: data.description,
+      specialRequirements: {
+        set: data.specialRequirements
+      },
+      topics: {
+        set: data.topics
+      },
       confidence: data.confidence,
     };
 

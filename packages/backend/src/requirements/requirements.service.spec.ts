@@ -41,7 +41,7 @@ describe('RequirementsService', () => {
       totalCredits: 50,
       startDate: new Date('2024-01-01'),
       endDate: new Date('2024-12-31'),
-      categories: [CreditCategory.CATEGORY_1],
+      categories: [CreditCategory.AMA_PRA_CATEGORY_1],
     };
 
     it('should create a requirement', async () => {

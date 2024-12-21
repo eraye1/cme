@@ -1,5 +1,5 @@
-import { IsString, IsNumber, IsDateString, IsEnum, IsOptional } from 'class-validator';
-import { ActivityType, CreditCategory } from '@prisma/client';
+import { IsString, IsNumber, IsOptional, IsArray, IsEnum, IsDateString } from 'class-validator';
+import { ActivityType, CreditCategory, SpecialTopicType } from '@prisma/client';
 
 export class ExtractedDataDto {
   @IsOptional()
@@ -19,10 +19,6 @@ export class ExtractedDataDto {
   completedDate: string | null;
 
   @IsOptional()
-  @IsDateString()
-  expirationDate: string | null;
-
-  @IsOptional()
   @IsEnum(CreditCategory)
   category: CreditCategory | null;
 
@@ -37,7 +33,11 @@ export class ExtractedDataDto {
   @IsString()
   description: string | null;
 
-  @IsOptional()
-  @IsString()
-  notes: string | null;
+  @IsArray()
+  @IsEnum(SpecialTopicType, { each: true })
+  specialRequirements: SpecialTopicType[];
+
+  @IsArray()
+  @IsString({ each: true })
+  topics: string[];
 } 

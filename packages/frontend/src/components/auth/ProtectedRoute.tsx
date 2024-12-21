@@ -18,14 +18,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [state.isLoading]);
 
-  console.log('[ProtectedRoute] State:', {
-    isLoading: state.isLoading,
-    isAuthenticated: state.isAuthenticated,
-    hasUser: !!state.user,
-    authChecked,
-    path: location.pathname
-  });
-
   if (!authChecked || state.isLoading) {
     return (
       <Center h="100vh">
@@ -43,7 +35,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!state.isAuthenticated || !state.user) {
-    console.log('[ProtectedRoute] Not authenticated, redirecting to login from:', location.pathname);
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

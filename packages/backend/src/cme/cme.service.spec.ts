@@ -38,7 +38,7 @@ describe('CmeService', () => {
       title: 'Test CME Course',
       provider: 'Test Provider',
       activityType: ActivityType.ONLINE_COURSE,
-      category: CreditCategory.CATEGORY_1,
+      category: CreditCategory.AMA_PRA_CATEGORY_1,
       credits: 2.5,
       completedAt: new Date(),
     };

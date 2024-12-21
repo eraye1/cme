@@ -77,29 +77,30 @@ model CmeTemplate {
 }
 
 model Document {
-  id             String             @id @default(cuid())
-  userId         String
-  fileName       String
-  fileType       String
-  fileUrl        String
-  sourceType     DocumentSourceType
-  title          String?
-  provider       String?
-  credits        Float?
-  completedDate  DateTime?
-  expirationDate DateTime?
-  category       CreditCategory?
-  activityType   ActivityType?
-  confidence     Float?
-  description    String?
-  notes          String?
-  status         ProcessingStatus   @default(PENDING)
-  error          String?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  user           User               @relation(fields: [userId], references: [id])
-  CmeCredit      CmeCredit?         @relation(fields: [cmeCreditId], references: [id])
-  cmeCreditId    String?
+  id                String             @id @default(cuid())
+  userId            String
+  fileName          String
+  fileType          String
+  fileUrl           String
+  sourceType        DocumentSourceType
+  title             String?
+  provider          String?
+  credits           Float?
+  completedDate     DateTime?
+  category          CreditCategory?
+  activityType      ActivityType?
+  confidence        Float              @default(0)
+  description       String?
+  specialRequirements SpecialTopicType[]
+  topics            String[]
+  notes             String?
+  status            ProcessingStatus   @default(PENDING)
+  error             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  user              User               @relation(fields: [userId], references: [id])
+  CmeCredit         CmeCredit?         @relation(fields: [cmeCreditId], references: [id])
+  cmeCreditId       String?
 
   @@index([userId])
 }
@@ -144,9 +145,14 @@ enum ActivityType {
 }
 
 enum CreditCategory {
-  CATEGORY_1
-  CATEGORY_2
+  AMA_PRA_CATEGORY_1
+  AMA_PRA_CATEGORY_2
+  AOA_CATEGORY_1A
+  AOA_CATEGORY_1B
+  AOA_CATEGORY_2A
+  AOA_CATEGORY_2B
   SPECIALTY
+  OTHER
 }
 
 enum DocumentSourceType {
@@ -234,4 +240,21 @@ model LegalCitation {
   
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+}
+
+enum SpecialTopicType {
+  OPIOID_EDUCATION
+  PAIN_MANAGEMENT
+  CONTROLLED_SUBSTANCES
+  ETHICS
+  CULTURAL_COMPETENCY
+  MEDICAL_ERRORS
+  INFECTION_CONTROL
+  DOMESTIC_VIOLENCE
+  HUMAN_TRAFFICKING
+  CHILD_ABUSE
+  END_OF_LIFE_CARE
+  RISK_MANAGEMENT
+  SUICIDE_PREVENTION
+  IMPLICIT_BIAS
 }

@@ -95,48 +95,61 @@ export class DocumentProcessingService {
   }
 
   private async extractDataWithAI(text: string): Promise<ExtractedDataDto> {
-    console.log(text);
     const systemPrompt = `
-      You are a precise CME certificate parser. Extract information in JSON format only.
+      You are a precise CME certificate parser that understands state medical board requirements. Extract information in JSON format only.
       If you cannot find a specific field or are unsure, use null for that field.
       Always respond with a valid JSON object containing these fields:
       - title: string | null (Title of the CME activity, null if not found)
       - provider: string | null (Name of the CME provider, null if not found)
-      - credits: number | null (Number of credits awarded, must be a number or null.  If there are multiple kinds of credits, use the CME)
-      - completedDate: string | null (Date in YYYY-MM-DD format, null if not found.  If there is only one date in the text, use that here and not for the expirationDate)
-      - category: string | null (Must be exactly one of: CATEGORY_1, CATEGORY_2, SPECIALTY, null if unclear)
+      - credits: number | null (Number of credits awarded, must be a number or null. If there are multiple kinds of credits, use the CME)
+      - completedDate: string | null (Date in YYYY-MM-DD format, null if not found)
+      - category: string | null (Must be exactly one of: AMA_PRA_CATEGORY_1, AMA_PRA_CATEGORY_2, AOA_CATEGORY_1A, AOA_CATEGORY_1B, AOA_CATEGORY_2A, AOA_CATEGORY_2B, SPECIALTY, OTHER if unclear)
       - activityType: string | null (Must be exactly one of: CONFERENCE, ONLINE_COURSE, JOURNAL_ARTICLE, TEACHING, MANUSCRIPT_REVIEW, SELF_ASSESSMENT, POINT_OF_CARE, BOARD_REVIEW, null if unclear)
-      - expirationDate: string | null (Date in YYYY-MM-DD format, null if not found.  Only use this field if there is a second date in the text, and it's very clear that this is the expiration date)
       - confidence: number (Your confidence in the overall extraction, 0-100)
       - description: string | null (Description of the CME activity, null if not found)
-      - notes: string | null (Any additional notes or comments, null if not found)
+      - specialRequirements: array (Array of special topic types this activity might fulfill, empty array if none detected)
+      - topics: array (Array of detected topic areas, empty array if none detected)
+
+      The specialRequirements array should include any of these detected special topic types:
+      - OPIOID_EDUCATION
+      - PAIN_MANAGEMENT
+      - CONTROLLED_SUBSTANCES
+      - ETHICS
+      - CULTURAL_COMPETENCY
+      - MEDICAL_ERRORS
+      - INFECTION_CONTROL
+      - DOMESTIC_VIOLENCE
+      - HUMAN_TRAFFICKING
+      - CHILD_ABUSE
+      - END_OF_LIFE_CARE
+      - RISK_MANAGEMENT
+      - SUICIDE_PREVENTION
+      - IMPLICIT_BIAS
+
+      Topics should be extracted from title, description, and any learning objectives.
 
       Set confidence lower if many fields are null or uncertain.
       Only include text that you are confident about, don't guess.
-      IMPORTANT: activityType must be one of the exact values listed above, or null.
     `;
 
     const userPrompt = `
-      Extract information from this CME certificate text into JSON format.
+      Extract information from this CME certificate text into JSON format, paying special attention to any content that might fulfill state-specific requirements.
       Remember to use null for any fields you cannot confidently extract.
       For activityType, use only: CONFERENCE, ONLINE_COURSE, JOURNAL_ARTICLE, TEACHING, MANUSCRIPT_REVIEW, SELF_ASSESSMENT, POINT_OF_CARE, BOARD_REVIEW, or null.
 
+      Look for keywords and topics that might fulfill special state requirements like opioid education, ethics, cultural competency, etc.
+
+      Certificate text:
       ${text}
     `;
 
     const completion = await this.openai.chat.completions.create({
       model: "gpt-4",
       messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: userPrompt
-        }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
       ],
-      temperature: 0, // Make responses more deterministic
+      temperature: 0,
     });
 
     try {
@@ -146,8 +159,6 @@ export class DocumentProcessingService {
       }
 
       const parsedData = JSON.parse(content);
-      console.log('[DocumentProcessing] Extracted data:', parsedData);
-
       return parsedData;
     } catch (error) {
       this.logger.error('Error parsing OpenAI response:', error);

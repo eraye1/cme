@@ -20,7 +20,7 @@ export function CreditForm() {
       title: '',
       provider: '',
       credits: 0,
-      category: CreditCategory.CATEGORY_1,
+      category: CreditCategory.AMA_PRA_CATEGORY_1,
       activityType: ActivityType.ONLINE_COURSE,
       completedAt: new Date(),
       description: '',

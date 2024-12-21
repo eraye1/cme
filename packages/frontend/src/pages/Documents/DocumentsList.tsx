@@ -39,7 +39,6 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
 
   const deleteDocument = useMutation({
     mutationFn: (documentId: string) => {
-      console.log('Delete mutation called with ID:', documentId);
       return documentsApi.delete(documentId);
     },
     onSuccess: () => {
@@ -51,18 +50,11 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
       queryClient.invalidateQueries({ queryKey: ['documents', user?.id] });
     },
     onError: (error) => {
-      console.error('Delete error:', error);
-      notifications.show({
-        title: 'Error',
-        message: error instanceof Error ? error.message : 'Failed to delete document',
-        color: 'red',
-      });
+      throw error;
     },
   });
 
   const handleDelete = (id: string, fileName: string) => {
-    console.log('handleDelete called with:', { id, fileName });
-    
     modals.openConfirmModal({
       title: 'Delete Document',
       children: (
@@ -73,11 +65,9 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
       onConfirm: async () => {
-        console.log('Modal confirmed, deleting document:', id);
         try {
           await deleteDocument.mutateAsync(id);
         } catch (error) {
-          console.error('Error in delete confirmation:', error);
         }
       },
     });
@@ -149,6 +139,22 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
             <Group justify="space-between" align="flex-start">
               <div>
                 <Text fw={500}>{doc.title || doc.fileName}</Text>
+                <Group gap="xs" mb={8}>
+                  {doc.category && (
+                    <Badge variant="light" color="blue">
+                      {doc.category.replace(/_/g, ' ')}
+                    </Badge>
+                  )}
+                  {doc.credits && (
+                    <Badge variant="light">
+                      {doc.credits} Credits
+                    </Badge>
+                  )}
+                  <Badge color={getStatusColor(doc.status)}>
+                    {doc.status}
+                  </Badge>
+                </Group>
+
                 <Text size="sm" c="dimmed">
                   Uploaded on {new Date(doc.createdAt).toLocaleDateString()}
                 </Text>
@@ -158,9 +164,38 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                 {doc.provider && (
                   <Text size="sm">Provider: {doc.provider}</Text>
                 )}
-                {doc.credits && (
-                  <Text size="sm">Credits: {doc.credits}</Text>
+
+                {doc.specialRequirements?.length > 0 && (
+                  <Group gap="xs" mt={8}>
+                    {doc.specialRequirements.map((req) => (
+                      <Badge 
+                        key={req} 
+                        variant="dot" 
+                        color="green"
+                        size="sm"
+                      >
+                        {req.replace(/_/g, ' ').toLowerCase()
+                          .replace(/\b\w/g, l => l.toUpperCase())}
+                      </Badge>
+                    ))}
+                  </Group>
                 )}
+
+                {doc.topics?.length > 0 && (
+                  <Group gap="xs" mt={8}>
+                    {doc.topics.map((topic) => (
+                      <Badge 
+                        key={topic} 
+                        variant="outline" 
+                        color="gray"
+                        size="sm"
+                      >
+                        {topic}
+                      </Badge>
+                    ))}
+                  </Group>
+                )}
+
                 {doc.description && (
                   <Text size="sm" mt={4}>Description: {doc.description}</Text>
                 )}
@@ -175,9 +210,6 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
               </div>
 
               <Group>
-                <Badge color={getStatusColor(doc.status)}>
-                  {doc.status}
-                </Badge>
                 <ActionIcon
                   variant="light"
                   onClick={() => handleDownload(doc.id, doc.fileName)}
@@ -198,7 +230,6 @@ export function DocumentsList({ onEditDocument, editingDocument, onCloseEdit }: 
                   variant="light"
                   color="red"
                   onClick={() => {
-                    console.log('Delete button clicked for document:', doc.id);
                     handleDelete(doc.id, doc.fileName);
                   }}
                   loading={deleteDocument.isPending && deleteDocument.variables === doc.id}

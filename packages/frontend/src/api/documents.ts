@@ -18,11 +18,9 @@ export const documentsApi = {
 
   delete: async (id: string) => {
     try {
-      console.log('[API] Deleting document:', id);
       const { data } = await api.delete<void>(`/documents/${id}`);
       return data;
     } catch (error) {
-      console.error('[API] Delete error:', error);
       throw error;
     }
   },
@@ -58,7 +56,6 @@ export const documentsApi = {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
       throw error;
     }
   },

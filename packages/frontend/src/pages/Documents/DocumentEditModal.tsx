@@ -1,7 +1,7 @@
-import { Modal, TextInput, NumberInput, Select, Button, Stack, Group, Textarea, ScrollArea, Box } from '@mantine/core';
+import { Modal, TextInput, NumberInput, Select, Button, Stack, Group, Textarea, ScrollArea, Box, MultiSelect, TagsInput } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { ActivityType, CreditCategory } from '../../types';
+import { ActivityType, CreditCategory, SpecialTopicType } from '../../types';
 
 interface DocumentEditModalProps {
   opened: boolean;
@@ -18,8 +18,9 @@ interface DocumentFormValues {
   completedDate: Date | null;
   category: CreditCategory | null;
   activityType: ActivityType | null;
-  expirationDate: Date | null;
   description: string;
+  specialRequirements: SpecialTopicType[];
+  topics: string[];
   notes: string;
 }
 
@@ -38,8 +39,9 @@ export function DocumentEditModal({
       completedDate: initialData?.completedDate ? new Date(initialData.completedDate) : null,
       category: initialData?.category || null,
       activityType: initialData?.activityType || null,
-      expirationDate: initialData?.expirationDate ? new Date(initialData.expirationDate) : null,
       description: initialData?.description || '',
+      specialRequirements: initialData?.specialRequirements || [],
+      topics: initialData?.topics || [],
       notes: initialData?.notes || '',
     },
   });
@@ -49,7 +51,6 @@ export function DocumentEditModal({
       await onSave(values);
       onClose();
     } catch (error) {
-      console.error('Error saving document:', error);
     }
   };
 
@@ -120,12 +121,6 @@ export function DocumentEditModal({
                   {...form.getInputProps('completedDate')}
                 />
 
-                <DateInput
-                  label="Expiration Date"
-                  placeholder="When does this expire? (optional)"
-                  {...form.getInputProps('expirationDate')}
-                />
-
                 <Textarea
                   label="Description"
                   placeholder="Activity description"
@@ -133,6 +128,23 @@ export function DocumentEditModal({
                   autosize
                   maxRows={6}
                   {...form.getInputProps('description')}
+                />
+
+                <MultiSelect
+                  label="Special Requirements"
+                  placeholder="Select requirements this activity fulfills"
+                  data={Object.values(SpecialTopicType).map(value => ({
+                    value,
+                    label: value.replace(/_/g, ' ').toLowerCase()
+                      .replace(/\b\w/g, l => l.toUpperCase())
+                  }))}
+                  {...form.getInputProps('specialRequirements')}
+                />
+
+                <TagsInput
+                  label="Topics"
+                  placeholder="Enter topics and press Enter"
+                  {...form.getInputProps('topics')}
                 />
 
                 <Textarea
