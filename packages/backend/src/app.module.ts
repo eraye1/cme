@@ -6,6 +6,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { RequirementsModule } from './requirements/requirements.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from './config/config.module';
+import { TermsModule } from './terms/terms.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ConfigModule } from './config/config.module';
     CmeModule,
     DocumentsModule,
     RequirementsModule,
+    TermsModule,
   ],
 })
 export class AppModule {}

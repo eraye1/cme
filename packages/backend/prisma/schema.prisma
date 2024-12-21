@@ -30,6 +30,8 @@ model User {
   refreshTokens RefreshToken[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  tosAcceptedAt DateTime?
+  tosVersion    String?
 }
 
 model CmeCredit {

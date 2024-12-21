@@ -11,6 +11,8 @@ import { AuthProvider } from './features/auth/AuthContext';
 import { Dashboard } from './pages/Dashboard';
 import Documents from './pages/Documents';
 import { Credits } from './pages/Credits';
+import { TermsOfService } from './pages/TermsOfService';
+import { TermsGuard } from './components/auth/TermsGuard';
 
 // Lazy load the Requirements page
 const Requirements = React.lazy(() => import('./pages/Requirements'));
@@ -44,10 +46,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: '/terms',
+        element: <TermsOfService />,
+      },
+      {
         path: '/app',
         element: (
           <ProtectedRoute>
-            <Layout />
+            <TermsGuard>
+              <Layout />
+            </TermsGuard>
           </ProtectedRoute>
         ),
         children: [
@@ -83,4 +91,9 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]); 
+], {
+  future: {
+    v7_startTransition: true,
+    v7_skipActionErrorRevalidation: true,
+  },
+}); 

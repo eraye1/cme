@@ -6,7 +6,6 @@ import {
   Get,
   Req,
   UnauthorizedException,
-  ConflictException,
   Patch,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
